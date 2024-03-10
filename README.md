@@ -11,6 +11,7 @@ Instalamos json-server
 > npm install -g json-server
 
 Iniciamos el json-server
+> cd Entertainment \
 > json-server --watch json\sudoku.json
 
 

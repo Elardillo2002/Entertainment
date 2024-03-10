@@ -1,62 +1,48 @@
 function Game() {
-
-    function ajax(options) {
-        const { success, data } = options;
-        const conexion = new XMLHttpRequest();
-        conexion.addEventListener("load", () => {
-            if (conexion.status >= 200 && conexion.status < 300) {
-                success(JSON.parse(conexion.response));
-            }
-        });
-        conexion.open("GET", "http://localhost:3000/Sudoku", true);
-        conexion.send(JSON.stringify(data));
-    }
-
     ajax({
         success: (response) => {
-                
-            const raw = response.RawSudoku[0];
-            const solved = response.SolvedSudoku[0];
-
+            let level = 0, correctCount = 0;
             let numSelect = null;
-            let casillaSelect = null;
-
             let errors = 0;
 
-            function crearNumeros() {
-                for (let i = 1; i <= 9; i++) {
-                    let numero = document.createElement("div");
-                    numero.id = i;
-                    numero.innerText = i;
-                    numero.classList.add("number");
-                    numero.addEventListener("click", selectNumero);
-                    document.querySelector("#digits").appendChild(numero);
-                }
+            const raw = response.RawSudoku[level];
+            const solved = response.SolvedSudoku[level];
+
+            // Create numbers
+            // id = "[1-9]" class = "numbers" onClick = "selectNumero"
+            for (let i = 1; i <= 9; i++) {
+                let numero = document.createElement("div");
+                numero.id = i;
+                numero.innerText = i;
+                numero.classList.add("numbers");
+                numero.addEventListener("click", selectNumero);
+                document.querySelector("#digits").appendChild(numero);
             }
 
-            function crearTablero() {
-                for (let fila = 0; fila < 9; fila++) {
-                    for (let columna = 0; columna < 9; columna++) {
-                        let casilla = document.createElement("div");
-                        casilla.id = fila.toString() + "-" + columna.toString();
+            // Create board
+            // id = "[1-9]-[1-9]" class = "tile" ["tile-start"] ["horizontal-line"] ["verticla-line"] onClick = "selectTile"
+            for (let row = 0; row < 9; row++) {
+                for (let column = 0; column < 9; column++) {
+                    let tile = document.createElement("div");
+                    tile.id = row.toString() + "-" + column.toString();
 
-                        if (raw[fila][columna] != 0) {
-                            casilla.innerText = raw[fila][columna];
-                            casilla.classList.add("tile-start");
-                        }
-
-                        if (fila == 2 || fila == 5) {
-                            casilla.classList.add("horizontal-line");
-                        }
-
-                        if (columna == 2 || columna == 5) {
-                            casilla.classList.add("vertical-line");
-                        }
-
-                        casilla.addEventListener("click", selectCasilla);
-                        casilla.classList.add("casilla");
-                        document.querySelector("#board").appendChild(casilla);
+                    if (raw[row][column] != 0) {
+                        correctCount--;
+                        tile.innerText = raw[row][column];
+                        tile.classList.add("tile-start");
                     }
+
+                    if (row == 2 || row == 5) {
+                        tile.classList.add("horizontal-line");
+                    }
+
+                    if (column == 2 || column == 5) {
+                        tile.classList.add("vertical-line");
+                    }
+
+                    tile.addEventListener("click", selectTile);
+                    tile.classList.add("tile");
+                    document.querySelector("#board").appendChild(tile);
                 }
             }
 
@@ -68,33 +54,42 @@ function Game() {
                 numSelect.classList.add("number-selected");
             }
 
-            function selectCasilla() {
+            function selectTile() {
                 if (numSelect) {
                     if (this.innerText != "") {
                         return;
                     }
 
                     let coords = this.id.split("-");
-                    let fila = parseInt(coords[0]);
-                    let columna = parseInt(coords[1]);
+                    let row = parseInt(coords[0]);
+                    let column = parseInt(coords[1]);
 
-                    if (solved[fila][columna] == numSelect.id) {
+                    if (solved[row][column] == numSelect.id) {
                         this.innerText = numSelect.id;
                     } else {
                         errors += 1;
-                        document.querySelector("#errors").innerText = `${errors}/3`;
+                        document.querySelector("h2").innerText = `${errors}/3`;
                     }
 
                     if (errors == 3) {
-                        crearNumeros();
+
                     }
                 }
             }
-
-            crearNumeros();
-            crearTablero();
         }
     });
+}
+
+function ajax(options) {
+    const { success, data } = options;
+    const conexion = new XMLHttpRequest();
+    conexion.addEventListener("load", () => {
+        if (conexion.status >= 200 && conexion.status < 300) {
+            success(JSON.parse(conexion.response));
+        }
+    });
+    conexion.open("GET", "http://localhost:3000/Sudoku", true);
+    conexion.send(JSON.stringify(data));
 }
 
 Game();
