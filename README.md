@@ -26,8 +26,8 @@ Actualizar cambios de otros (main)
 
 Actualizar cambios propios (main)
 
-> git fetch origin main
-> git merge origin/main
+> git fetch origin master
+> git merge origin/master
 > git add .
 > git commit -m "commit"
-> git push origin main
+> git push origin master
